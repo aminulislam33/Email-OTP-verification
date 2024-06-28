@@ -15,13 +15,13 @@ async function handleOTPGeneration(req, res) {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: 'catharsis.iiests@gmail.com',
-                pass: 'uben akki aixa idne'
+                user: process.env.EMAIL,
+                pass: process.env.PASSWORD
             }
         });
 
         await transporter.sendMail({
-            from: 'catharsis.iiests@gmail.com',
+            from: process.env.EMAIL,
             to: email,
             subject: 'OTP Verification',
             text: `Your OTP for verification is: ${otp}`
