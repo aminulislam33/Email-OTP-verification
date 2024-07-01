@@ -7,7 +7,12 @@ async function handleOTPGeneration(req, res) {
 
     console.log(email);
 
-    const otp = otpGenerator.generate(6, { digits: true, alphabets: false, upperCase: false, specialChars: false });
+    const otp = otpGenerator.generate(6, {
+        digits: true,
+        lowerCaseAlphabets: false,
+        upperCaseAlphabets: false,
+        specialChars: false
+    });
 
     try {
         await OTP.create({ email, otp });
@@ -27,15 +32,25 @@ async function handleOTPGeneration(req, res) {
             text: `Your OTP for verification is: ${otp}`
         });
 
-        res.status(200).send('OTP sent successfully');
+        console.log("request session is:", req.session);
+        
+        req.session.email = email;
+        res.status(200).render("verify-otp")
     } catch (error) {
         console.error(error);
         res.status(500).send('Error sending OTP');
     }
 };
 
-async function handleOTPVerification(req,res){
-    const { email, otp } = req.body;
+async function handleOTPVerification(req, res) {
+    const { otp } = req.body;
+    const email = req.session.email;
+
+    if (!email) {
+        return res.status(400).send('Email not found in session');
+    }
+
+    console.log(email, otp)
 
     try {
         const otpRecord = await OTP.findOne({ email, otp }).exec();
